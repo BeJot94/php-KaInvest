@@ -2,6 +2,7 @@
 
 	session_start();
 	
+	require_once "../php/functions.php";
 ?>
 <!DOCTYPE html>
 <html>
@@ -102,8 +103,8 @@
 
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
-          <li class="active"><a href="/">Main</a></li>
-          <li><a href="/compare">Compare</a></li>
+          <li><a href="/">Main</a></li>
+          <li class="active"><a href="/compare">Compare</a></li>
         </ul>
         <h3 class="muted">KaInvest</h3>
       </div>
@@ -128,6 +129,8 @@
 				<input class="form-control" name="Bdate" type="text" placeholder="YYYY-MM-DD" />
 				<label for="inputdefault">End date</label>
 				<input class="form-control" name="Edate" type="text" placeholder="YYYY-MM-DD" />
+				<label for="inputdefault">Interest</label>
+				<input class="form-control" name="Interest" type="text" placeholder="Interest of investment (in %)..." />
 				<label for="inputdefault">Amout of money</label>
 				<input class="form-control" name="Money" type="text" placeholder="How much money do you want to invest..." />
 				
@@ -138,6 +141,7 @@
 		  <h5></h5>
 		  
 		  <h4>Compare your profits!</h4>
+		  <p><?php if(isset($_SESSION["invest"])) echo "Do obliczeń przyjęto zainwestowaną kwotę: " . $_SESSION["invest"] . ". Dla lokaty bankowej przyjęto kapitalizację dzienną."; ?></p>
 		  <div id="ProfitsChart" style="height: 250px;"></div>
 		  
       <hr>
@@ -179,30 +183,53 @@
 									$line = pg_fetch_array($result, null, PGSQL_ASSOC);
 									$IDmin = $line["id"] + 1;
 									
-									$income = 0;
+									$incomeFund = 0;
+									$incomeBank = 0;
+									$newDay = 0;
+									
+									for($i = $IDmax; $i >= $IDmin; $i--){
+										
+										$query = "SELECT * FROM fundusz_inwestycyjny WHERE id='$i'";								
+										$result = pg_query($query) or die('Nieprawidłowe zapytanie: ' . pg_last_error());
+																		
+										if($result)
+										{
+											$line = pg_fetch_array($result, null, PGSQL_ASSOC);
+											
+											$newDay = new DateTime($line["data"]);
+											
+											if($i != $IDmax)
+											{
+												$incomeFund += (($line["wartosc"] * $_SESSION["stocks"]) - $_SESSION["invest"]);
+												
+												$dDif = $lastDay->diff($newDay);
+												
+												for($j = 0; $j < $dDif->days; $j++)
+												{
+													$temp = ($_SESSION["invest"] * ($_SESSION["interest"] / 100)) / 365;
+													$incomeBank += $temp;
+													$_SESSION["invest"] += $temp;
+												}
+												
+											}
+											
+											$lastDay = $newDay;
+											
+											if($i != $IDmin)
+												echo '{ day: "' . $line["data"] . '", incomeFund: ' . $incomeFund . ', incomeBank: ' . $incomeBank . '},';
+											else
+												echo '{ day: "' . $line["data"] . '", incomeFund: ' . $incomeFund . ', incomeBank: ' . $incomeBank . '}';
+												
+											
+										}
+									}
 								}
 								else
 								{
-									$IDmin = 0;
-									$IDmax = 0;
-								}
-								
-								for($i = $IDmax; $i >= $IDmin; $i--){
+									$incomeFund = 0;
+									$incomeBank = 0;
 									
-									$query = "SELECT * FROM fundusz_inwestycyjny WHERE id='$i'";								
-									$result = pg_query($query) or die('Nieprawidłowe zapytanie: ' . pg_last_error());
-																	
-									if($result)
-									{
-										$line = pg_fetch_array($result, null, PGSQL_ASSOC);
-										
-										$income += (($line["wartosc"] * $_SESSION["stocks"]) - $_SESSION["invest"]);
-										
-										if($i != $IDmin)
-											echo '{ day: "' . $line["data"] . '", income: ' . $income . '},';
-										else
-											echo '{ day: "' . $line["data"] . '", income: ' . $income . '}';
-									}
+									echo '{ day: "' . $line["data"] . '", incomeFund: ' . $incomeFund . ', incomeBank: ' . $incomeBank . '}';
 								}
 								
 								pg_free_result($result);
@@ -218,9 +245,9 @@
 			  // The name of the data record attribute that contains x-values.
 			  xkey: 'day',
 			  // A list of names of data record attributes that contain y-values.
-			  ykeys: ['income'],
+			  ykeys: ['incomeFund', 'incomeBank'],
 			  // Labels for the ykeys -- will be displayed when you hover over the chart.
-			  labels: ['Income']
+			  labels: ['Income from fund', 'Income from bank']
 			});
 		</script>
 </body>
