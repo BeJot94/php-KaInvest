@@ -83,6 +83,20 @@
 
 		  <div class="row-fluid marketing">
 			<div class="span12">
+			
+			  <h4>Choose range of date for which you want to see data</h4>
+			  <form action="php/changeRange.php" method="post">
+				  <div class="form-group">
+					<label for="inputdefault">Beginning date</label>
+					<input class="form-control" name="Bdate" type="text" placeholder="YYYY-MM-DD" />				
+					<label for="inputdefault">End date</label>
+					<input class="form-control" name="Edate" type="text" placeholder="YYYY-MM-DD" />
+					
+					<button type="submit" name="submit" class="btn btn-primary">Submit</button>
+				  </div>
+			  </form>
+			  
+			  <h5></h5>
 			  
 			  <h4>Stock prices of investment fund - tabular data</h4>
 			  <table id="showResult" class="table table-striped table-bordered" width="100%" cellspacing="0">
