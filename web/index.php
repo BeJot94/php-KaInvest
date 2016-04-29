@@ -98,6 +98,11 @@
 			  
 			  <h5></h5>
 			  
+			  <h4>Stock prices of investment fund - chart data</h4>
+			  <div id="KaInvestChart" style="height: 250px;"></div>
+			  
+			  <h5></h5>
+			  
 			  <h4>Stock prices of investment fund - tabular data</h4>
 			  <table id="showResult" class="table table-striped table-bordered" width="100%" cellspacing="0">
 				 <thead>
@@ -172,5 +177,76 @@
 		  </div>
 
 		</div> <!-- /container -->
+		
+		<script>
+			new Morris.Line({
+			  // ID of the element in which to draw the chart.
+			  element: 'KaInvestChart',
+			  // Chart data records -- each entry in this array == point on the chart.
+			  data: [
+			  
+			  <?php
+							require_once "config/connect.php";
+						
+							$polaczenie = pg_connect("host=" . $host . " dbname=" . $db_name . " user=" . $db_user . " password=" . $db_password)
+												 or die('Nie można nawiązać połączenia: ' . pg_last_error());
+												 
+							if(!$polaczenie)
+							{
+								echo "Error...";
+							}
+							else
+							{
+								if(isset($_SESSION['bDate']) && isset($_SESSION['eDate']))
+								{
+									$query = "SELECT * FROM fundusz_inwestycyjny WHERE data >= '" . $_SESSION['bDate'] . "' ORDER BY data LIMIT 1";
+									$result = pg_query($query) or die('Nieprawidłowe zapytanie: ' . pg_last_error());
+									$line = pg_fetch_array($result, null, PGSQL_ASSOC);
+									$IDmax = $line["id"];
+									
+									$query = "SELECT * FROM fundusz_inwestycyjny WHERE data <= '" . $_SESSION['eDate'] . "' LIMIT 1";
+									$result = pg_query($query) or die('Nieprawidłowe zapytanie: ' . pg_last_error());
+									$line = pg_fetch_array($result, null, PGSQL_ASSOC);
+									$IDmin = $line["id"];
+								}
+								else
+								{
+									$IDmin = 1;
+									$IDmax = 10;
+								}
+								
+								for($i = $IDmin; $i <= $IDmax; $i++){
+									
+									$query = "SELECT * FROM fundusz_inwestycyjny WHERE id='$i'";								
+									$result = pg_query($query) or die('Nieprawidłowe zapytanie: ' . pg_last_error());
+																	
+									if($result)
+									{
+										$line = pg_fetch_array($result, null, PGSQL_ASSOC);
+										
+										if($i != $IDmax)
+											echo '{ year: "' . $line["data"] . '", value: ' . $line["wartosc"] . '},';
+										else
+											echo '{ year: "' . $line["data"] . '", value: ' . $line["wartosc"] . '}';
+									}
+								}
+								
+								pg_free_result($result);
+								pg_close($polaczenie);
+							}
+							
+							unset($_SESSION["bDate"]);
+							unset($_SESSION["eDate"]);
+							?>
+			  ],
+			  // The name of the data record attribute that contains x-values.
+			  xkey: 'year',
+			  // A list of names of data record attributes that contain y-values.
+			  ykeys: ['value'],
+			  // Labels for the ykeys -- will be displayed when you hover over the chart.
+			  labels: ['Value']
+			});
+		</script>
+		
 	</body>
 </html>
