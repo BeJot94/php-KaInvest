@@ -2,101 +2,56 @@
 
 	session_start();
 	
-	require_once "../php/functions.php";
 ?>
 <!DOCTYPE html>
 <html>
-<head>
-  <title>KaInvest - internship task</title>
-  <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="">
-<meta name="author" content="">
+	<head>
+		<title>KaInvest - internship task</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="description" content="">
+		<meta name="author" content="">
 
-<link href="../stylesheets/bootstrap.css" rel="stylesheet">
-<link href="../stylesheets/main.css" rel="stylesheet">
+		<link href="../stylesheets/bootstrap.css" rel="stylesheet">
+		<link href="../stylesheets/main.css" rel="stylesheet">
 
-<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
-<!--[if lt IE 9]>
-  <script src="../assets/js/html5shiv.js"></script>
-<![endif]-->
+		<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+		<!--[if lt IE 9]>
+		<script src="../assets/js/html5shiv.js"></script>
+		<![endif]-->
 
-<!-- Fav and touch icons -->
-<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
-<link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
-  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
-				<link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">
-							   <link rel="shortcut icon" href="../assets/ico/favicon.png">
-  
-  <link rel="stylesheet" href="../stylesheets/morris.css">
-  <script src="../javascript/jquery.min.js"></script>
-  <script src="../javascript/raphael-min.js"></script>
-  <script src="../javascript/morris.min.js"></script>
-  
-  <link rel="stylesheet" href="../stylesheets/chartist.min.css">
-  <link href="../stylesheets/bootstrap-responsive.css" rel="stylesheet">
-  <link href="../stylesheets/bootstrap.min.css" rel="stylesheet">
-  <link href="../stylesheets/dataTables.bootstrap.min.css" rel="stylesheet">
+		<link rel="stylesheet" href="../stylesheets/morris.css">
+		<script src="../javascript/jquery.min.js"></script>
+		<script src="../javascript/raphael-min.js"></script>
+		<script src="../javascript/morris.min.js"></script>
 
-  <script type="text/javascript" language="javascript" src="../javascript/jquery-1.12.0.min.js"></script> 
-  <script type="text/javascript" language="javascript" src="../javascript/jquery.dataTables.min.js"></script>
-  <script type="text/javascript" language="javascript" src="../javascript/dataTables.bootstrap.min.js"></script>
-  <script type="text/javascript" language="javascript" src="../javascript/dateRange.js"></script>
-  <script type="text/javascript" class="init">
-	
-	$(document).ready(function() {
-		$('#showResult').DataTable();
-	} );
+		<link rel="stylesheet" href="../stylesheets/chartist.min.css">
+		<link href="../stylesheets/bootstrap-responsive.css" rel="stylesheet">
+		<link href="../stylesheets/bootstrap.min.css" rel="stylesheet">
+		<link href="../stylesheets/dataTables.bootstrap.min.css" rel="stylesheet">
+		<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 
-	</script>
-	<script type="text/javascript">
-	function convert(str) {
-			var date = new Date(str),
-			mnth = ("0" + (date.getMonth()+1)).slice(-2),
-			day  = ("0" + date.getDate()).slice(-2);
-			return [ date.getFullYear(), mnth, day ].join("-");
-	}
-	</script>
-	
-	<style type="text/css">
-	body {
-		padding-top: 20px;
-		padding-bottom: 40px;
-	}
-
-	/* Custom container */
-	.container-narrow {
-		margin: 0 auto;
-		max-width: 700px;
-	}
-	.container-narrow > hr {
-		margin: 30px 0;
-	}
-
-	/* Main marketing message and sign up button */
-	.jumbotron {
-		margin: 60px 0;
-		text-align: center;
-	}
-	.jumbotron h1 {
-		font-size: 72px;
-		line-height: 1;
-	}
-	.jumbotron .btn {
-		font-size: 21px;
-		padding: 14px 24px;
-	}
-
-	/* Supporting marketing content */
-	.marketing {
-		margin: 60px 0;
-	}
-	.marketing p + h4 {
-		margin-top: 28px;
-	}
-	</style>
-  
-</head>
+		<script type="text/javascript" language="javascript" src="../javascript/jquery-1.12.0.min.js"></script> 
+		<script type="text/javascript" language="javascript" src="../javascript/jquery.dataTables.min.js"></script>
+		<script type="text/javascript" language="javascript" src="../javascript/dataTables.bootstrap.min.js"></script>
+		<script type="text/javascript" language="javascript" src="../javascript/dateRange.js"></script>
+		<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+		
+		<!-- Script for drawing chart, get div with id #showResult -->
+		<script type="text/javascript" class="init">		
+			$(document).ready(function() {
+				$('#showResult').DataTable();
+			} );
+		</script>
+		
+		<!-- Script for datepickers, get divs with id #datepicker & #datepicker2 -->
+		<script>
+			$(function() {
+				$( "#datepicker" ).datepicker({ dateFormat: 'yy-mm-dd' });
+				$( "#datepicker2" ).datepicker({ dateFormat: 'yy-mm-dd' });
+			});
+		</script>
+	</head>
 
 <body>
   <div class="container-narrow">
@@ -126,13 +81,13 @@
 		  <form action="../php/setCompareData.php" method="post">
 			  <div class="form-group">
 				<label for="inputdefault">Beginning date</label>
-				<input class="form-control" name="Bdate" type="text" placeholder="YYYY-MM-DD" />
+				<input class="form-control" name="Bdate" type="text" placeholder="YYYY-MM-DD" id="datepicker" <?php if(isset($_SESSION["bDate"])) echo 'value="' . $_SESSION["bDate"] . '"'; ?> required/>
 				<label for="inputdefault">End date</label>
-				<input class="form-control" name="Edate" type="text" placeholder="YYYY-MM-DD" />
+				<input class="form-control" name="Edate" type="text" placeholder="YYYY-MM-DD" id="datepicker2" <?php if(isset($_SESSION["eDate"])) echo 'value="' . $_SESSION["eDate"] . '"'; ?> required/>
 				<label for="inputdefault">Interest</label>
-				<input class="form-control" name="Interest" type="text" placeholder="Interest of investment (in %)..." />
+				<input class="form-control" name="Interest" type="text" placeholder="Interest of investment (in %)..." <?php if(isset($_SESSION["interest"])) echo 'value="' . $_SESSION["interest"] . '"'; ?> required/>
 				<label for="inputdefault">Amout of money</label>
-				<input class="form-control" name="Money" type="text" placeholder="How much money do you want to invest..." />
+				<input class="form-control" name="Money" type="text" placeholder="How much money do you want to invest..." <?php if(isset($_SESSION["invest"])) echo 'value="' . $_SESSION["invest"] . '"'; ?> required/>
 				
 				<button type="submit" name="submit" class="btn btn-primary">Submit</button>
 			  </div>
@@ -141,7 +96,7 @@
 		  <h5></h5>
 		  
 		  <h4>Compare your profits!</h4>
-		  <p><?php if(isset($_SESSION["invest"])) echo "Do obliczeń przyjęto zainwestowaną kwotę: " . $_SESSION["invest"] . ". Dla lokaty bankowej przyjęto kapitalizację dzienną."; ?></p>
+		  <p><?php if(isset($_SESSION["invest"])) echo "Amount of money for calculations: " . $_SESSION["invest"] . ". Daily capitalization is chosen for bank investment."; ?></p>
 		  <div id="ProfitsChart" style="height: 250px;"></div>
 		  
       <hr>
@@ -158,89 +113,97 @@
 			  element: 'ProfitsChart',
 			  // Chart data records -- each entry in this array == point on the chart.
 			  data: [
-			  
-			  <?php
-							require_once "../config/connect.php";
+<?php
+			require_once "../config/connect.php";
+		
+			$polaczenie = pg_connect("host=" . $host . " dbname=" . $db_name . " user=" . $db_user . " password=" . $db_password)
+								 or die('Connection error: ' . pg_last_error());
+								 
+			if(!$polaczenie)
+			{
+				echo "Error...";
+			}
+			else
+			{
+				// Check, if sb set date range for data, and:
+				// * if true, get range of ID from DB, which we want to display,
+				if(isset($_SESSION['bDate']) && isset($_SESSION['eDate']))
+				{
+					$query = "SELECT * FROM fundusz_inwestycyjny WHERE data >= '" . $_SESSION['bDate'] . "' ORDER BY data LIMIT 1";
+					$result = pg_query($query) or die('Incorrect query: ' . pg_last_error());
+					$line = pg_fetch_array($result, null, PGSQL_ASSOC);
+					$IDmax = $line["id"];
+					
+					$query = "SELECT * FROM fundusz_inwestycyjny WHERE data <= '" . $_SESSION['eDate'] . "' LIMIT 1";
+					$result = pg_query($query) or die('Incorrect query: ' . pg_last_error());
+					$line = pg_fetch_array($result, null, PGSQL_ASSOC);
+					$IDmin = $line["id"] + 1;
+					
+					$incomeFund = 0;
+					$incomeBank = 0;
+					
+					// For every row selected above, display one row of data to use in chart.
+					for($i = $IDmax; $i >= $IDmin; $i--){
 						
-							$polaczenie = pg_connect("host=" . $host . " dbname=" . $db_name . " user=" . $db_user . " password=" . $db_password)
-												 or die('Nie można nawiązać połączenia: ' . pg_last_error());
-												 
-							if(!$polaczenie)
+						$query = "SELECT * FROM fundusz_inwestycyjny WHERE id='$i'";								
+						$result = pg_query($query) or die('Incorrect query: ' . pg_last_error());
+														
+						if($result)
+						{
+							$line = pg_fetch_array($result, null, PGSQL_ASSOC);
+							
+							// Create new object of class DateTime - it allows to compare how many days were since last entry in DB.
+							$newDay = new DateTime($line["data"]);
+							
+							if($i != $IDmax)
 							{
-								echo "Error...";
-							}
-							else
-							{
-								if(isset($_SESSION['bDate']) && isset($_SESSION['eDate']))
-								{
-									$query = "SELECT * FROM fundusz_inwestycyjny WHERE data >= '" . $_SESSION['bDate'] . "' ORDER BY data LIMIT 1";
-									$result = pg_query($query) or die('Nieprawidłowe zapytanie: ' . pg_last_error());
-									$line = pg_fetch_array($result, null, PGSQL_ASSOC);
-									$IDmax = $line["id"];
-									
-									$query = "SELECT * FROM fundusz_inwestycyjny WHERE data <= '" . $_SESSION['eDate'] . "' LIMIT 1";
-									$result = pg_query($query) or die('Nieprawidłowe zapytanie: ' . pg_last_error());
-									$line = pg_fetch_array($result, null, PGSQL_ASSOC);
-									$IDmin = $line["id"] + 1;
-									
-									$incomeFund = 0;
-									$incomeBank = 0;
-									$newDay = 0;
-									
-									for($i = $IDmax; $i >= $IDmin; $i--){
-										
-										$query = "SELECT * FROM fundusz_inwestycyjny WHERE id='$i'";								
-										$result = pg_query($query) or die('Nieprawidłowe zapytanie: ' . pg_last_error());
-																		
-										if($result)
-										{
-											$line = pg_fetch_array($result, null, PGSQL_ASSOC);
-											
-											$newDay = new DateTime($line["data"]);
-											
-											if($i != $IDmax)
-											{
-												$incomeFund += (($line["wartosc"] * $_SESSION["stocks"]) - $_SESSION["invest"]);
-												
-												$dDif = $lastDay->diff($newDay);
-												
-												for($j = 0; $j < $dDif->days; $j++)
-												{
-													$temp = ($_SESSION["invest"] * ($_SESSION["interest"] / 100)) / 365;
-													$incomeBank += $temp;
-													$_SESSION["invest"] += $temp;
-												}
-												
-											}
-											
-											$lastDay = $newDay;
-											
-											if($i != $IDmin)
-												echo '{ day: "' . $line["data"] . '", incomeFund: ' . $incomeFund . ', incomeBank: ' . $incomeBank . '},';
-											else
-												echo '{ day: "' . $line["data"] . '", incomeFund: ' . $incomeFund . ', incomeBank: ' . $incomeBank . '}';
-												
-											
-										}
-									}
-								}
-								else
-								{
-									$incomeFund = 0;
-									$incomeBank = 0;
-									
-									echo '{ day: "' . $line["data"] . '", incomeFund: ' . $incomeFund . ', incomeBank: ' . $incomeBank . '}';
-								}
+								// Calculate possible income after selling all stocks in every day.
+								// income from fund = (value of stock * amount of bought stocks) - invested money.
+								$incomeFund = (($line["wartosc"] * $_SESSION["stocks"]) - $_SESSION["invest"]);
 								
-								pg_free_result($result);
-								pg_close($polaczenie);
+								// Get amount of days since last entry in DB.
+								$dDif = $lastDay->diff($newDay);
+								
+								// We're using daily capitalization, so if there's more than one day between entries, we have to calculate income from X days.
+								for($j = 0; $j < $dDif->days; $j++)
+								{
+									// Calculate daily income from bank and overall income.
+									// daily income from bank = (invested money * interest (in %)) / days per year
+									$dailyIncomeBank = ($_SESSION["invest"] * ($_SESSION["interest"] / 100)) / 365;
+									$incomeBank += $dailyIncomeBank;
+									// We have to increase amout of money which is ,,working" on bank investment every day.
+									$_SESSION["invest"] += $dailyIncomeBank;
+								}
 							}
 							
-							unset($_SESSION["bDate"]);
-							unset($_SESSION["eDate"]);
-							unset($_SESSION["stocks"]);
-							unset($_SESSION["invest"]);
-							?>
+							// After counting daily income, set last used day as day using now.
+							$lastDay = $newDay;
+							
+							if($i != $IDmin)
+								echo "\t\t\t{" . ' day: "' . $line["data"] . '", incomeFund: ' . round($incomeFund, 4) . ', incomeBank: ' . round($incomeBank, 4) . "},\n";
+							else
+								echo "\t\t\t{" . ' day: "' . $line["data"] . '", incomeFund: ' . round($incomeFund, 4) . ', incomeBank: ' . round($incomeBank, 4) . "}\n";
+						}
+					}
+				}
+				// * if false, show one point in chart equals 0.
+				else
+				{
+					$incomeFund = 0;
+					$incomeBank = 0;
+					
+					echo "\t\t\t{" . ' day: "' . $line["data"] . '", incomeFund: ' . $incomeFund . ', incomeBank: ' . $incomeBank . "}\n";
+				}
+				
+				pg_free_result($result);
+				pg_close($polaczenie);
+			}
+			
+			unset($_SESSION["bDate"]);
+			unset($_SESSION["eDate"]);
+			unset($_SESSION["stocks"]);
+			unset($_SESSION["invest"]);
+			?>
 			  ],
 			  // The name of the data record attribute that contains x-values.
 			  xkey: 'day',

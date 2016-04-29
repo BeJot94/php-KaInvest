@@ -19,13 +19,6 @@
 		<!--[if lt IE 9]>
 		  <script src="../assets/js/html5shiv.js"></script>
 		<![endif]-->
-
-		<!-- Fav and touch icons -->
-		<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
-		<link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
-		<link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
-		<link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">
-		<link rel="shortcut icon" href="../assets/ico/favicon.png">
 	  
 		<link rel="stylesheet" href="stylesheets/morris.css">
 		<script src="javascript/jquery.min.js"></script>
@@ -36,27 +29,28 @@
 		<link href="stylesheets/bootstrap-responsive.css" rel="stylesheet">
 		<link href="stylesheets/bootstrap.min.css" rel="stylesheet">
 		<link href="stylesheets/dataTables.bootstrap.min.css" rel="stylesheet">
+		<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 
 		<script type="text/javascript" language="javascript" src="javascript/jquery-1.12.0.min.js"></script> 
 		<script type="text/javascript" language="javascript" src="javascript/jquery.dataTables.min.js"></script>
 		<script type="text/javascript" language="javascript" src="javascript/dataTables.bootstrap.min.js"></script>
 		<script type="text/javascript" language="javascript" src="javascript/dateRange.js"></script>
-		<script type="text/javascript" class="init">
+		<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 		
-		$(document).ready(function() {
-			$('#showResult').DataTable();
-		} );
-
+		<!-- Script for drawing chart, get div with id #showResult -->
+		<script type="text/javascript" class="init">		
+			$(document).ready(function() {
+				$('#showResult').DataTable();
+			} );
 		</script>
-		<script type="text/javascript">
-		function convert(str) {
-				var date = new Date(str),
-				mnth = ("0" + (date.getMonth()+1)).slice(-2),
-				day  = ("0" + date.getDate()).slice(-2);
-				return [ date.getFullYear(), mnth, day ].join("-");
-		}
-		</script>
-	  
+		
+		<!-- Script for datepickers, get divs with id #datepicker & #datepicker2 -->
+		<script>
+			$(function() {
+				$( "#datepicker" ).datepicker({ dateFormat: 'yy-mm-dd' });
+				$( "#datepicker2" ).datepicker({ dateFormat: 'yy-mm-dd' });
+			});
+		</script>	  
 	</head>
 
 	<body>
@@ -88,9 +82,9 @@
 			  <form action="php/changeRange.php" method="post">
 				  <div class="form-group">
 					<label for="inputdefault">Beginning date</label>
-					<input class="form-control" name="Bdate" type="text" placeholder="YYYY-MM-DD" />				
+					<input class="form-control" name="Bdate" type="text" placeholder="YYYY-MM-DD" id="datepicker" <?php if(isset($_SESSION["bDate"])) echo 'value="' . $_SESSION["bDate"] . '"'; ?> required/>
 					<label for="inputdefault">End date</label>
-					<input class="form-control" name="Edate" type="text" placeholder="YYYY-MM-DD" />
+					<input class="form-control" name="Edate" type="text" placeholder="YYYY-MM-DD" id="datepicker2" <?php if(isset($_SESSION["eDate"])) echo 'value="' . $_SESSION["eDate"] . '"'; ?> required/>
 					
 					<button type="submit" name="submit" class="btn btn-primary">Submit</button>
 				  </div>
@@ -107,66 +101,67 @@
 			  <table id="showResult" class="table table-striped table-bordered" width="100%" cellspacing="0">
 				 <thead>
 					<tr>
-						<th>ID</th><th>Date</th><th>Value</th>
+						<th>ID</th>
+						<th>Date</th>
+						<th>Value</th>
 					</tr>
 				</thead>
 				<tbody>
-				
-				<?php
-							require_once "config/connect.php";
-						
-							$polaczenie = pg_connect("host=" . $host . " dbname=" . $db_name . " user=" . $db_user . " password=" . $db_password)
-												 or die('Nie można nawiązać połączenia: ' . pg_last_error());
-												 
-							if(!$polaczenie)
-							{
-								echo "Error...";
-							}
-							else
-							{
-								if(isset($_SESSION['bDate']) && isset($_SESSION['eDate']))
-								{
-									$query = "SELECT * FROM fundusz_inwestycyjny WHERE data >= '" . $_SESSION['bDate'] . "' ORDER BY data LIMIT 1";
-									//echo $query . "<br />";
-									$result = pg_query($query) or die('Nieprawidłowe zapytanie: ' . pg_last_error());
-									$line = pg_fetch_array($result, null, PGSQL_ASSOC);
-									$IDmax = $line["id"];
-									
-									$query = "SELECT * FROM fundusz_inwestycyjny WHERE data <= '" . $_SESSION['eDate'] . "' LIMIT 1";
-									//echo $query . "<br />";
-									$result = pg_query($query) or die('Nieprawidłowe zapytanie: ' . pg_last_error());
-									$line = pg_fetch_array($result, null, PGSQL_ASSOC);
-									$IDmin = $line["id"];
-									
-									//echo "max=" . $IDmax . " min=" . $IDmin;
-								}
-								else
-								{
-									$IDmin = 1;
-									$IDmax = 10;
-								}
-								
-								for($i = $IDmin; $i <= $IDmax; $i++){
-									
-									$query = "SELECT * FROM fundusz_inwestycyjny WHERE id='$i'";								
-									$result = pg_query($query) or die('Nieprawidłowe zapytanie: ' . pg_last_error());
-																	
-									if($result)
-									{
-										$line = pg_fetch_array($result, null, PGSQL_ASSOC);
-									
-										echo '<tr>
-													<td>' . $line["id"] . '</td>
-													<td>' . $line["data"] . '</td>
-													<td>' . $line["wartosc"] . '</td>
-												 </tr>';
-									}
-								}
-								
-								pg_free_result($result);
-								pg_close($polaczenie);
-							}
-							?>
+<?php
+require_once "config/connect.php";
+
+$polaczenie = pg_connect("host=" . $host . " dbname=" . $db_name . " user=" . $db_user . " password=" . $db_password)
+					 or die('Connection error: ' . pg_last_error());
+					 
+if($polaczenie)
+{
+	// Check, if sb set date range for data, and:
+	// * if true, get range of ID from DB, which we want to display,
+	if(isset($_SESSION['bDate']) && isset($_SESSION['eDate']))
+	{
+		$query = "SELECT * FROM fundusz_inwestycyjny WHERE data >= '" . $_SESSION['bDate'] . "' ORDER BY data LIMIT 1";
+		//echo $query . "<br />";
+		$result = pg_query($query) or die('Incorrect query: ' . pg_last_error());
+		$line = pg_fetch_array($result, null, PGSQL_ASSOC);
+		$IDmax = $line["id"];
+		
+		$query = "SELECT * FROM fundusz_inwestycyjny WHERE data <= '" . $_SESSION['eDate'] . "' LIMIT 1";
+		//echo $query . "<br />";
+		$result = pg_query($query) or die('Incorrect query: ' . pg_last_error());
+		$line = pg_fetch_array($result, null, PGSQL_ASSOC);
+		$IDmin = $line["id"];
+		
+		//echo "max=" . $IDmax . " min=" . $IDmin;
+	}
+	// * if false, display 10 newest rows from DB.
+	else
+	{
+		$IDmin = 1;
+		$IDmax = 10;
+	}
+	
+	// For every row selected above, display one row in table.
+	for($i = $IDmin; $i <= $IDmax; $i++){
+		
+		$query = "SELECT * FROM fundusz_inwestycyjny WHERE id='$i'";								
+		$result = pg_query($query) or die('Incorrect query: ' . pg_last_error());
+										
+		if($result)
+		{
+			$line = pg_fetch_array($result, null, PGSQL_ASSOC);
+		
+			echo "\t\t\t\t\t<tr>\n";
+			echo "\t\t\t\t\t\t<td>" . $line["id"] . "</td>\n";
+			echo "\t\t\t\t\t\t<td>" . $line["data"] . "</td>\n";
+			echo "\t\t\t\t\t\t<td>" . $line["wartosc"] . "</td>\n";
+			echo "\t\t\t\t\t</tr>\n";
+		}
+	}
+	
+	pg_free_result($result);
+	pg_close($polaczenie);
+}
+?>
 				</tbody>
 				</table>
 
@@ -180,64 +175,67 @@
 		
 		<script>
 			new Morris.Line({
-			  // ID of the element in which to draw the chart.
+			  // ID of the element in which we want to draw the chart.
 			  element: 'KaInvestChart',
 			  // Chart data records -- each entry in this array == point on the chart.
 			  data: [
-			  
-			  <?php
-							require_once "config/connect.php";
+<?php
+			require_once "config/connect.php";
+		
+			$polaczenie = pg_connect("host=" . $host . " dbname=" . $db_name . " user=" . $db_user . " password=" . $db_password)
+								 or die('Connection error: ' . pg_last_error());
+								 
+			if(!$polaczenie)
+			{
+				echo "Error...";
+			}
+			else
+			{
+				// Check, if sb set date range for data, and:
+				// * if true, get range of ID from DB, which we want to display,
+				if(isset($_SESSION['bDate']) && isset($_SESSION['eDate']))
+				{
+					$query = "SELECT * FROM fundusz_inwestycyjny WHERE data >= '" . $_SESSION['bDate'] . "' ORDER BY data LIMIT 1";
+					$result = pg_query($query) or die('Incorrect query: ' . pg_last_error());
+					$line = pg_fetch_array($result, null, PGSQL_ASSOC);
+					$IDmax = $line["id"];
+					
+					$query = "SELECT * FROM fundusz_inwestycyjny WHERE data <= '" . $_SESSION['eDate'] . "' LIMIT 1";
+					$result = pg_query($query) or die('Incorrect query: ' . pg_last_error());
+					$line = pg_fetch_array($result, null, PGSQL_ASSOC);
+					$IDmin = $line["id"];
+				}
+				// * if false, display 10 newest rows from DB.
+				else
+				{
+					$IDmin = 1;
+					$IDmax = 10;
+				}
+				
+				// For every row selected above, display one row of data to use in chart.
+				for($i = $IDmin; $i <= $IDmax; $i++){
+					
+					$query = "SELECT * FROM fundusz_inwestycyjny WHERE id='$i'";								
+					$result = pg_query($query) or die('Incorrect query: ' . pg_last_error());
+													
+					if($result)
+					{
+						$line = pg_fetch_array($result, null, PGSQL_ASSOC);
 						
-							$polaczenie = pg_connect("host=" . $host . " dbname=" . $db_name . " user=" . $db_user . " password=" . $db_password)
-												 or die('Nie można nawiązać połączenia: ' . pg_last_error());
-												 
-							if(!$polaczenie)
-							{
-								echo "Error...";
-							}
-							else
-							{
-								if(isset($_SESSION['bDate']) && isset($_SESSION['eDate']))
-								{
-									$query = "SELECT * FROM fundusz_inwestycyjny WHERE data >= '" . $_SESSION['bDate'] . "' ORDER BY data LIMIT 1";
-									$result = pg_query($query) or die('Nieprawidłowe zapytanie: ' . pg_last_error());
-									$line = pg_fetch_array($result, null, PGSQL_ASSOC);
-									$IDmax = $line["id"];
-									
-									$query = "SELECT * FROM fundusz_inwestycyjny WHERE data <= '" . $_SESSION['eDate'] . "' LIMIT 1";
-									$result = pg_query($query) or die('Nieprawidłowe zapytanie: ' . pg_last_error());
-									$line = pg_fetch_array($result, null, PGSQL_ASSOC);
-									$IDmin = $line["id"];
-								}
-								else
-								{
-									$IDmin = 1;
-									$IDmax = 10;
-								}
-								
-								for($i = $IDmin; $i <= $IDmax; $i++){
-									
-									$query = "SELECT * FROM fundusz_inwestycyjny WHERE id='$i'";								
-									$result = pg_query($query) or die('Nieprawidłowe zapytanie: ' . pg_last_error());
-																	
-									if($result)
-									{
-										$line = pg_fetch_array($result, null, PGSQL_ASSOC);
-										
-										if($i != $IDmax)
-											echo '{ day: "' . $line["data"] . '", value: ' . $line["wartosc"] . '},';
-										else
-											echo '{ day: "' . $line["data"] . '", value: ' . $line["wartosc"] . '}';
-									}
-								}
-								
-								pg_free_result($result);
-								pg_close($polaczenie);
-							}
-							
-							unset($_SESSION["bDate"]);
-							unset($_SESSION["eDate"]);
-							?>
+						if($i != $IDmax)
+							echo "\t\t\t{" . ' day: "' . $line["data"] . '", value: ' . $line["wartosc"] . "},\n";
+						else
+							echo "\t\t\t{" . ' day: "' . $line["data"] . '", value: ' . $line["wartosc"] . "}\n";
+					}
+				}
+				
+				pg_free_result($result);
+				pg_close($polaczenie);
+			}
+			
+			unset($_SESSION["bDate"]);
+			unset($_SESSION["eDate"]);
+			?>
 			  ],
 			  // The name of the data record attribute that contains x-values.
 			  xkey: 'day',
