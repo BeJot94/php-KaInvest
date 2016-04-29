@@ -225,9 +225,9 @@
 										$line = pg_fetch_array($result, null, PGSQL_ASSOC);
 										
 										if($i != $IDmax)
-											echo '{ year: "' . $line["data"] . '", value: ' . $line["wartosc"] . '},';
+											echo '{ day: "' . $line["data"] . '", value: ' . $line["wartosc"] . '},';
 										else
-											echo '{ year: "' . $line["data"] . '", value: ' . $line["wartosc"] . '}';
+											echo '{ day: "' . $line["data"] . '", value: ' . $line["wartosc"] . '}';
 									}
 								}
 								
@@ -240,7 +240,7 @@
 							?>
 			  ],
 			  // The name of the data record attribute that contains x-values.
-			  xkey: 'year',
+			  xkey: 'day',
 			  // A list of names of data record attributes that contain y-values.
 			  ykeys: ['value'],
 			  // Labels for the ykeys -- will be displayed when you hover over the chart.

@@ -1,3 +1,8 @@
+<?php
+
+	session_start();
+	
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -116,9 +121,25 @@
       <div class="row-fluid marketing">
         <div class="span12">
 		
-		  <h4>Lorem ipsum dolor sit amet erat</h4>
-          <p>Fusce aliquam at, nibh. Ut tempus orci sit amet, nonummy id, bibendum mi. Nam lacus. Vivamus lacus euismod orci pellentesque accumsan. Proin urna. Suspendisse ac libero. Proin ornare interdum, lacus. Vestibulum ante ipsum primis in ligula ut malesuada congue. Nam vestibulum tincidunt eu, urna. Donec congue. Maecenas tortor libero, fringilla fringilla enim. Aenean id nulla sed lorem libero, egestas quam eget gravida sem. Quisque urna. Aenean quis pede ultrices nec, mattis egestas, dapibus et, enim. Suspendisse a lacus. Aliquam ultricies viverra fermentum imperdiet ante et malesuada leo luctus et magnis dis parturient montes, nascetur ridiculus mus. Nunc felis. Pellentesque bibendum, tellus. Suspendisse justo augue ut tortor. Aliquam posuere nisl erat at nibh nulla erat velit vitae lacinia lacus. In bibendum nulla. Nullam imperdiet dignissim, tellus. Maecenas in augue. Fusce interdum. Nulla ante. Curabitur vitae metus. Nulla facilisi. Etiam nibh risus, consequat wisi. Integer euismod convallis auctor. Nam suscipit, erat volutpat. Donec rutrum vel, arcu. Donec orci. Ut eget tortor. Maecenas viverra elit semper feugiat. Proin aliquam purus. Class aptent taciti sociosqu ad litora torquent.</p>
-
+		<h4>Choose range of date for which you want to invest + amout of money</h4>
+		  <form action="../php/setCompareData.php" method="post">
+			  <div class="form-group">
+				<label for="inputdefault">Beginning date</label>
+				<input class="form-control" name="Bdate" type="text" placeholder="YYYY-MM-DD" />
+				<label for="inputdefault">End date</label>
+				<input class="form-control" name="Edate" type="text" placeholder="YYYY-MM-DD" />
+				<label for="inputdefault">Amout of money</label>
+				<input class="form-control" name="Money" type="text" placeholder="How much money do you want to invest..." />
+				
+				<button type="submit" name="submit" class="btn btn-primary">Submit</button>
+			  </div>
+		  </form>
+		  
+		  <h5></h5>
+		  
+		  <h4>Compare your profits!</h4>
+		  <div id="ProfitsChart" style="height: 250px;"></div>
+		  
       <hr>
 
       <div class="footer">
@@ -126,5 +147,81 @@
       </div>
 
     </div> <!-- /container -->
+	
+	<script>
+			new Morris.Line({
+			  // ID of the element in which to draw the chart.
+			  element: 'ProfitsChart',
+			  // Chart data records -- each entry in this array == point on the chart.
+			  data: [
+			  
+			  <?php
+							require_once "../config/connect.php";
+						
+							$polaczenie = pg_connect("host=" . $host . " dbname=" . $db_name . " user=" . $db_user . " password=" . $db_password)
+												 or die('Nie można nawiązać połączenia: ' . pg_last_error());
+												 
+							if(!$polaczenie)
+							{
+								echo "Error...";
+							}
+							else
+							{
+								if(isset($_SESSION['bDate']) && isset($_SESSION['eDate']))
+								{
+									$query = "SELECT * FROM fundusz_inwestycyjny WHERE data >= '" . $_SESSION['bDate'] . "' ORDER BY data LIMIT 1";
+									$result = pg_query($query) or die('Nieprawidłowe zapytanie: ' . pg_last_error());
+									$line = pg_fetch_array($result, null, PGSQL_ASSOC);
+									$IDmax = $line["id"];
+									
+									$query = "SELECT * FROM fundusz_inwestycyjny WHERE data <= '" . $_SESSION['eDate'] . "' LIMIT 1";
+									$result = pg_query($query) or die('Nieprawidłowe zapytanie: ' . pg_last_error());
+									$line = pg_fetch_array($result, null, PGSQL_ASSOC);
+									$IDmin = $line["id"] + 1;
+									
+									$income = 0;
+								}
+								else
+								{
+									$IDmin = 0;
+									$IDmax = 0;
+								}
+								
+								for($i = $IDmax; $i >= $IDmin; $i--){
+									
+									$query = "SELECT * FROM fundusz_inwestycyjny WHERE id='$i'";								
+									$result = pg_query($query) or die('Nieprawidłowe zapytanie: ' . pg_last_error());
+																	
+									if($result)
+									{
+										$line = pg_fetch_array($result, null, PGSQL_ASSOC);
+										
+										$income += (($line["wartosc"] * $_SESSION["stocks"]) - $_SESSION["invest"]);
+										
+										if($i != $IDmin)
+											echo '{ day: "' . $line["data"] . '", income: ' . $income . '},';
+										else
+											echo '{ day: "' . $line["data"] . '", income: ' . $income . '}';
+									}
+								}
+								
+								pg_free_result($result);
+								pg_close($polaczenie);
+							}
+							
+							unset($_SESSION["bDate"]);
+							unset($_SESSION["eDate"]);
+							unset($_SESSION["stocks"]);
+							unset($_SESSION["invest"]);
+							?>
+			  ],
+			  // The name of the data record attribute that contains x-values.
+			  xkey: 'day',
+			  // A list of names of data record attributes that contain y-values.
+			  ykeys: ['income'],
+			  // Labels for the ykeys -- will be displayed when you hover over the chart.
+			  labels: ['Income']
+			});
+		</script>
 </body>
 </html>
